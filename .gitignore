@@ -1,0 +1,4 @@
+$ cat .gitignore
+# exclude PyCharm system files
+/.idea
+/__pycache__
