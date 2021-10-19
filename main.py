@@ -1,4 +1,4 @@
-import json, re
+import json, re, sqlite3
 
 def add_note(notes):
     """Takes the note from input and adds it to the program local copy, then dumps it into JSON file.
@@ -11,6 +11,13 @@ def add_note(notes):
     with open("notes.json", 'w') as file:
         json.dump(notes, file, indent = 4)
 
+def add_note_sql():
+    """Takes the note from input and inserts it to the database."""
+    text = input()
+    sql = '''INSERT INTO main(note) VALUES (?)'''
+    cursor.execute(sql, (text,))
+    conn.commit()
+
 def show(notes):
     """Prints all notes by taking their values from the program local copy.
 
@@ -22,6 +29,11 @@ def show(notes):
             item = auto_transfer(item)
             print(item)
             print('********************************')
+
+def show_notes_sql():
+    """Shows all notes from the database."""
+    sql = '''SELECT * FROM main'''
+    print(cursor.execute(sql).fetchall())
 
 def auto_transfer(string, length=20, rows=5):
     """Auto-transfers the string by spaces, underscores and by max length.
@@ -74,14 +86,25 @@ def auto_transfer(string, length=20, rows=5):
 
 
 """Loads notes to the program local copy from JSON file."""
+'''
 try:
     with open("notes.json", 'r') as file:
         notes = json.load(file)
 except FileNotFoundError:
     notes = []
+'''
+
+
+conn = sqlite3.connect('notes.db')
+cursor = conn.cursor()
+sql = '''CREATE TABLE IF NOT EXISTS main
+(note text)'''
+cursor.execute(sql)
 
 """Test of adding k notes and showing all notes"""
-k = 1
+k = 2
 for i in range(k):
-    add_note(notes)
-show(notes)
+    add_note_sql()
+show_notes_sql()
+cursor.close()
+conn.close()

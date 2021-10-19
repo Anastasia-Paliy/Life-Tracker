@@ -2,3 +2,4 @@ $ cat .gitignore
 # exclude PyCharm system files
 /.idea
 /__pycache__
+notes.db

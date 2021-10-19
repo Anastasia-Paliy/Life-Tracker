@@ -4,6 +4,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton, QMessageBox,
                              QDesktopWidget, QHBoxLayout, QVBoxLayout, QScrollBar,
                              QLabel, QScrollArea)
+import main
 
 
 class Main_Window(QWidget):
@@ -15,6 +16,7 @@ class Main_Window(QWidget):
 
 
     def initUI(self):
+        """Initialization of the main window"""
 
         self.setFixedSize(400, 600)
         self.center()
@@ -23,7 +25,8 @@ class Main_Window(QWidget):
         
         notesBox = QVBoxLayout()
         notesWidget = QWidget()
-        
+
+        """Creates 25 buttons filled by the texts of the notes"""
         for i in range(25):
             note = QPushButton('Some note', self)
             #note.setMinimumSize(300, 40)
@@ -47,6 +50,7 @@ class Main_Window(QWidget):
         
 
     def center(self):
+        """Centers the main window"""
 
         qr = self.frameGeometry()
         cp = QDesktopWidget().availableGeometry().center()
@@ -55,6 +59,7 @@ class Main_Window(QWidget):
 
 
     def closeEvent(self, event):
+        """Handles the exit event"""
 
         reply = QMessageBox.question(self, 'Message',
             "Are you sure to quit?", QMessageBox.Yes |
