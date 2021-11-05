@@ -60,9 +60,9 @@ class Main_Window(QMainWindow):
         vbox.addWidget(button)
 
 
-        mdi = QMdiArea()
-        mdi.setLayout(vbox)
-        self.setCentralWidget(mdi)
+        self.mdi = QMdiArea()
+        self.mdi.setLayout(vbox)
+        self.setCentralWidget(self.mdi)
         
         self.show()
         
@@ -76,6 +76,8 @@ class Main_Window(QMainWindow):
 
     def new_note(self):
         edit_window = Edit_Window()
+        self.mdi.addSubWindow(edit_window)
+        self.mdi.setActiveSubWindow(edit_window)
         edit_window.show()
 
 

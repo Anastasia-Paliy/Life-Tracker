@@ -1,12 +1,12 @@
 import sys
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton, QMessageBox,
+from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton, QMessageBox, QMdiSubWindow,
                              QDesktopWidget, QHBoxLayout, QVBoxLayout, QScrollBar,
                              QLabel, QScrollArea, QMainWindow, QMdiArea, QTextEdit)
 
 
-class Edit_Window(QWidget):
+class Edit_Window(QMdiSubWindow):
 
     def __init__(self):
         super().__init__()
@@ -33,9 +33,10 @@ class Edit_Window(QWidget):
 
         vbox.addWidget(button)
 
-        totalWidget = QWidget()
+        totalWidget = QMdiSubWindow()
         totalWidget.setLayout(vbox)
-        mdi.addSubWindow(totalWidget)
+
+        return totalWidget
 
         #self.show()
         
@@ -60,8 +61,10 @@ class Edit_Window(QWidget):
             event.ignore()
 
 
+'''
 if __name__ == '__main__':
 
     app = QApplication(sys.argv)
     ex = Edit_Window()
     sys.exit(app.exec_())
+'''
