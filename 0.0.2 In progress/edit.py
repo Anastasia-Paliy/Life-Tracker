@@ -3,7 +3,7 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton, QMessageBox,
                              QDesktopWidget, QHBoxLayout, QVBoxLayout, QScrollBar,
-                             QLabel, QScrollArea, QMainWindow, QTextEdit)
+                             QLabel, QScrollArea, QMainWindow, QMdiArea, QTextEdit)
 
 
 class Edit_Window(QWidget):
@@ -31,9 +31,13 @@ class Edit_Window(QWidget):
         button.resize(button.sizeHint())
         button.move(150, 250)
 
-        vbox.addWidget(button) 
+        vbox.addWidget(button)
 
-        self.show()
+        totalWidget = QWidget()
+        totalWidget.setLayout(vbox)
+        mdi.addSubWindow(totalWidget)
+
+        #self.show()
         
 
     def center(self):

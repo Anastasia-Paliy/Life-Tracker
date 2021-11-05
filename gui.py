@@ -1,7 +1,7 @@
 import sys
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton, QMessageBox,
+from PyQt5.QtWidgets import (QApplication, QWidget, QMainWindow, QPushButton, QMessageBox,
                              QDesktopWidget, QHBoxLayout, QVBoxLayout, QScrollBar,
                              QLabel, QScrollArea)
 import main

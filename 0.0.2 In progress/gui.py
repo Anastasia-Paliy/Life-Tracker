@@ -5,11 +5,11 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton, QMessageBox,
                              QDesktopWidget, QHBoxLayout, QVBoxLayout, QScrollBar,
-                             QLabel, QScrollArea, QMainWindow)
+                             QLabel, QScrollArea, QMainWindow, QMdiArea)
 
 
 
-class Main_Window(QWidget):
+class Main_Window(QMainWindow):
 
     def __init__(self):
         super().__init__()
@@ -24,8 +24,8 @@ class Main_Window(QWidget):
                 notes = json.load(file)
         except FileNotFoundError:
             notes = []
-            
-
+        
+        
         self.setFixedSize(400, 600)
         self.center()
         self.setWindowTitle('Life Tracker')
@@ -46,17 +46,24 @@ class Main_Window(QWidget):
         scroll = QScrollArea()
         scroll.setWidget(notesWidget)
         scroll.setWidgetResizable(True)
+        scroll.adjustSize()
         
         vbox = QVBoxLayout(self)
         vbox.addWidget(scroll)
+        
 
         button = QPushButton('New note', self)
         button.resize(button.sizeHint())
         button.move(150, 250)
         button.clicked.connect(self.new_note)
 
-        vbox.addWidget(button) 
+        vbox.addWidget(button)
 
+
+        mdi = QMdiArea()
+        mdi.setLayout(vbox)
+        self.setCentralWidget(mdi)
+        
         self.show()
         
 
