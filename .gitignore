@@ -3,3 +3,4 @@ $ cat .gitignore
 /.idea
 /__pycache__
 notes.db
+0.0.2 In progress/__pycache__
