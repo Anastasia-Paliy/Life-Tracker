@@ -1,12 +1,12 @@
 import sys
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton, QMessageBox, QMdiSubWindow,
+from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton, QMessageBox,
                              QDesktopWidget, QHBoxLayout, QVBoxLayout, QScrollBar,
-                             QLabel, QScrollArea, QMainWindow, QMdiArea, QTextEdit)
+                             QLabel, QScrollArea, QMainWindow, QTextEdit)
 
 
-class Edit_Window(QMdiSubWindow):
+class Edit_Window(QWidget):
 
     def __init__(self):
         super().__init__()
@@ -31,15 +31,10 @@ class Edit_Window(QMdiSubWindow):
         button.resize(button.sizeHint())
         button.move(150, 250)
 
-        vbox.addWidget(button)
-
-        totalWidget = QMdiSubWindow()
-        totalWidget.setLayout(vbox)
-
-        return totalWidget
-
-        #self.show()
+        vbox.addWidget(button) 
         
+        return self
+    
 
     def center(self):
 
@@ -48,23 +43,27 @@ class Edit_Window(QMdiSubWindow):
         qr.moveCenter(cp)
         self.move(qr.topLeft())
 
-
+    
     def closeEvent(self, event):
 
         reply = QMessageBox.question(self, 'Message',
             "Save before closing?", QMessageBox.Yes |
             QMessageBox.No, QMessageBox.No)
 
+        """
         if reply == QMessageBox.Yes:
-            event.accept()
+            a = 0
         else:
-            event.ignore()
+            a = 0
+        """
+        
+        event.accept()
 
+    
 
-'''
 if __name__ == '__main__':
 
     app = QApplication(sys.argv)
     ex = Edit_Window()
+    ex.show()
     sys.exit(app.exec_())
-'''

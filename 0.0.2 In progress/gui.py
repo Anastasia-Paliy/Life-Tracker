@@ -12,8 +12,9 @@ from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton, QMessageBox,
 class Main_Window(QMainWindow):
 
     def __init__(self):
-        super().__init__()
 
+        super().__init__()
+        
         self.initUI()
 
 
@@ -21,9 +22,9 @@ class Main_Window(QMainWindow):
 
         try:
             with open("notes.json", 'r') as file:
-                notes = json.load(file)
+                self.notes = json.load(file)
         except FileNotFoundError:
-            notes = []
+            self.notes = []
         
         
         self.setFixedSize(400, 600)
@@ -34,12 +35,10 @@ class Main_Window(QMainWindow):
         notesBox = QVBoxLayout()
         notesWidget = QWidget()
 
-        for note in notes:
+        for note in self.notes:
             my_notes = note.values()
             for item in my_notes:
                 noteB = QPushButton(f'{item}', self)
-                #noteB.setStyleSheet("QPushButton { text-align: left; }")
-                #note.setMinimumSize(300, 40)
                 notesBox.addWidget(noteB)
             
         notesWidget.setLayout(notesBox)
@@ -47,18 +46,15 @@ class Main_Window(QMainWindow):
         scroll.setWidget(notesWidget)
         scroll.setWidgetResizable(True)
         scroll.adjustSize()
-        
-        vbox = QVBoxLayout(self)
-        vbox.addWidget(scroll)
-        
 
         button = QPushButton('New note', self)
         button.resize(button.sizeHint())
         button.move(150, 250)
         button.clicked.connect(self.new_note)
-
+        
+        vbox = QVBoxLayout(self)
+        vbox.addWidget(scroll)
         vbox.addWidget(button)
-
 
         self.mdi = QMdiArea()
         self.mdi.setLayout(vbox)
@@ -68,17 +64,17 @@ class Main_Window(QMainWindow):
         
 
     def center(self):
-
+        
         qr = self.frameGeometry()
         cp = QDesktopWidget().availableGeometry().center()
         qr.moveCenter(cp)
         self.move(qr.topLeft())
 
+
     def new_note(self):
-        edit_window = Edit_Window()
-        self.mdi.addSubWindow(edit_window)
-        self.mdi.setActiveSubWindow(edit_window)
-        edit_window.show()
+        
+        self.edit_window = Edit_Window()
+        self.edit_window.show()
 
 
 
