@@ -5,7 +5,7 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, QEventLoop
 from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton, QMessageBox,
                              QDesktopWidget, QHBoxLayout, QVBoxLayout, QScrollBar,
-                             QLabel, QScrollArea, QMainWindow, QMdiArea)
+                             QLabel, QScrollArea, QMainWindow)
 
 
 
@@ -47,9 +47,9 @@ class Main_Window(QMainWindow):
         vbox.addWidget(scroll)
         vbox.addWidget(button)
 
-        self.mdi = QMdiArea()
-        self.mdi.setLayout(vbox)
-        self.setCentralWidget(self.mdi)
+        self.widget = QWidget()
+        self.widget.setLayout(vbox)
+        self.setCentralWidget(self.widget)
         
         self.show()
         
