@@ -7,9 +7,10 @@ from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton, QMessageBox,
 
 class Edit_Window(QWidget):
 
-    def __init__(self):
+    def __init__(self, action):
         super().__init__()
 
+        self.flag = action
         self.initUI()
 
 
@@ -29,6 +30,7 @@ class Edit_Window(QWidget):
         button = QPushButton('Save note', self)
         button.resize(button.sizeHint())
         button.move(150, 250)
+        button.clicked.connect(self.save)
 
         vbox.addWidget(button) 
         
@@ -44,19 +46,21 @@ class Edit_Window(QWidget):
 
     
     def closeEvent(self, event):
-
+        """
         reply = QMessageBox.question(self, 'Message',
             "Save before closing?", QMessageBox.Yes |
             QMessageBox.No, QMessageBox.No)
-
-        """
-        if reply == QMessageBox.Yes:
-            a = 0
-        else:
-            a = 0
-        """
         
+        if reply == QMessageBox.Yes:
+            self.save()
+        """
         event.accept()
+
+
+    def save(self):
+        
+        text = self.textWidget.toPlainText()
+        self.close()
 
     
 

@@ -2,7 +2,7 @@ import sys
 import json
 from edit import Edit_Window
 from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QEventLoop
 from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton, QMessageBox,
                              QDesktopWidget, QHBoxLayout, QVBoxLayout, QScrollBar,
                              QLabel, QScrollArea, QMainWindow, QMdiArea)
@@ -14,38 +14,27 @@ class Main_Window(QMainWindow):
     def __init__(self):
 
         super().__init__()
+
+        self.upload_notes("notes.json")
         
         self.initUI()
 
 
-    def initUI(self):
-
-        try:
-            with open("notes.json", 'r') as file:
-                self.notes = json.load(file)
-        except FileNotFoundError:
-            self.notes = []
-        
+    def initUI(self):      
         
         self.setFixedSize(400, 600)
         self.center()
         self.setWindowTitle('Life Tracker')
         self.setWindowIcon(QIcon('icon.png'))
         
-        notesBox = QVBoxLayout()
-        notesWidget = QWidget()
+        self.notesBox = QVBoxLayout()
+        self.notesWidget = QWidget()
 
-        for note in self.notes:
-            my_notes = note.values()
-            for item in my_notes:
-                noteB = QPushButton(f'{item}', self)
-                noteB.setObjectName(item)
-                noteB.clicked.connect(self.open_note)
-                notesBox.addWidget(noteB)
+        self.display_notes()
             
-        notesWidget.setLayout(notesBox)
+        self.notesWidget.setLayout(self.notesBox)
         scroll = QScrollArea()
-        scroll.setWidget(notesWidget)
+        scroll.setWidget(self.notesWidget)
         scroll.setWidgetResizable(True)
         scroll.adjustSize()
 
@@ -73,17 +62,45 @@ class Main_Window(QMainWindow):
         self.move(qr.topLeft())
 
 
+    def upload_notes(self, file_name):
+        try:
+            with open(file_name, 'r') as file:
+                self.notes = json.load(file)
+                
+        except FileNotFoundError:
+            self.notes = []
+
+
+    def display_notes(self):
+
+        for note in reversed(self.notes):
+            my_notes = note.values()
+            for item in my_notes:
+                noteB = QPushButton(f'{item}', self)
+                noteB.setObjectName(item)
+                noteB.clicked.connect(self.open_note)
+                self.notesBox.addWidget(noteB)
+
+
     def new_note(self):
         
-        self.edit_window = Edit_Window()
+        self.edit_window = Edit_Window('new')
+        self.edit_window.setAttribute(Qt.WA_DeleteOnClose)
         self.edit_window.show()
+        loop = QEventLoop()
+        self.edit_window.destroyed.connect(loop.quit)
+        loop.exec()
+        #print(self.edit_window.textWidget.toPlainText())
+        note = dict(text = 'some new note')
+        self.notes.append(note)
+        self.initUI()
 
 
     def open_note(self):
     
         sending_button = self.sender()
         text = sending_button.objectName()
-        self.edit_window = Edit_Window()
+        self.edit_window = Edit_Window('edit')
         self.edit_window.textWidget.setPlainText(text)
         self.edit_window.show()
 
