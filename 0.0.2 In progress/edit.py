@@ -30,7 +30,8 @@ class Edit_Window(QWidget):
         button = QPushButton('Save note', self)
         button.resize(button.sizeHint())
         button.move(150, 250)
-        button.clicked.connect(self.save)
+        button.setObjectName('save')
+        button.clicked.connect(self.close)
 
         vbox.addWidget(button) 
         
@@ -46,14 +47,24 @@ class Edit_Window(QWidget):
 
     
     def closeEvent(self, event):
-        """
-        reply = QMessageBox.question(self, 'Message',
-            "Save before closing?", QMessageBox.Yes |
-            QMessageBox.No, QMessageBox.No)
         
-        if reply == QMessageBox.Yes:
-            self.save()
-        """
+        try:
+            sending_button = self.sender()
+            text = sending_button.objectName()
+            if text == 'save':
+                self.save()
+            else:
+                raise Exception
+            
+        except:
+            
+            reply = QMessageBox.question(self, 'Message',
+                "Save before closing?", QMessageBox.Yes |
+                QMessageBox.No, QMessageBox.No)
+            
+            if reply == QMessageBox.Yes:
+                self.save()
+        
         event.accept()
 
 
