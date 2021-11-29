@@ -80,29 +80,33 @@ class Main_Window(QMainWindow):
                 noteB.setObjectName(item)
                 noteB.clicked.connect(self.open_note)
                 self.notesBox.addWidget(noteB)
+                
+
+    def edit_window_processing(self):
+        
+        self.edit_window.show()
+        loop = QEventLoop()
+        self.edit_window.signal.closed.connect(loop.quit)
+        loop.exec()
+        #self.notes = self.edit_window.notes
+        self.initUI()
 
 
     def new_note(self):
         
-        self.edit_window = Edit_Window('new')
-        self.edit_window.setAttribute(Qt.WA_DeleteOnClose)
-        self.edit_window.show()
-        loop = QEventLoop()
-        self.edit_window.destroyed.connect(loop.quit)
-        loop.exec()
-        #print(self.edit_window.textWidget.toPlainText())
-        note = dict(text = 'some new note')
-        self.notes.append(note)
-        self.initUI()
+        self.edit_window = Edit_Window('new', self.notes)
+        self.edit_window_processing()
+        
 
 
     def open_note(self):
     
         sending_button = self.sender()
         text = sending_button.objectName()
-        self.edit_window = Edit_Window('edit')
+        self.edit_window = Edit_Window('edit', self.notes, text)
         self.edit_window.textWidget.setPlainText(text)
-        self.edit_window.show()
+        self.edit_window_processing()
+
 
 
 

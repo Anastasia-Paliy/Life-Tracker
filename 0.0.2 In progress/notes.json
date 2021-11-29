@@ -54,21 +54,33 @@
         "text": "Note 18"
     },
     {
-        "text": "Note 19"
-    },
-    {
         "text": "Note 20"
     },
     {
         "text": "Note 21"
     },
     {
-        "text": "Note 22"
-    },
-    {
         "text": "Note 23"
     },
     {
         "text": "Note 24"
+    },
+    {
+        "text": "test add_note"
+    },
+    {
+        "text": "test edit_note"
+    },
+    {
+        "text": "test new_note + save"
+    },
+    {
+        "text": "test new_note + close + save"
+    },
+    {
+        "text": "Note 22 ---> test edit_note + save"
+    },
+    {
+        "text": "Note 19 ---> test edit_note + close + save"
     }
 ]

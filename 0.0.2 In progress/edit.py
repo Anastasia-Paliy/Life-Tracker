@@ -1,16 +1,25 @@
 import sys
 from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, pyqtSignal, QObject
 from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton, QMessageBox,
                              QDesktopWidget, QHBoxLayout, QVBoxLayout, QTextEdit)
+from backend import add_note, edit_note
+
+
+class Signal(QObject):
+
+    closed = pyqtSignal()
+    
 
 
 class Edit_Window(QWidget):
 
-    def __init__(self, action):
+    def __init__(self, action, notes, prev_text = None):
         super().__init__()
-
-        self.flag = action
+    
+        self.action = action
+        self.notes = notes
+        self.prev = prev_text
         self.initUI()
 
 
@@ -26,14 +35,16 @@ class Edit_Window(QWidget):
         
         vbox = QVBoxLayout(self)
         vbox.addWidget(self.textWidget)
-
+        
         button = QPushButton('Save note', self)
         button.resize(button.sizeHint())
         button.move(150, 250)
         button.setObjectName('save')
         button.clicked.connect(self.close)
 
-        vbox.addWidget(button) 
+        vbox.addWidget(button)
+
+        self.signal = Signal()
         
         return self
     
@@ -44,10 +55,24 @@ class Edit_Window(QWidget):
         cp = QDesktopWidget().availableGeometry().center()
         qr.moveCenter(cp)
         self.move(qr.topLeft())
+        
+
+    def save(self):
+        
+        text = self.textWidget.toPlainText()
+        
+        if self.action == 'edit':
+            self.notes == edit_note(self.notes, self.prev, text)
+
+        elif self.action == 'new':
+            self.notes = add_note(self.notes, text)
+
+        else:
+            raise ValueError("Invalid value of edit_window.action")
 
     
     def closeEvent(self, event):
-        
+
         try:
             sending_button = self.sender()
             text = sending_button.objectName()
@@ -64,14 +89,12 @@ class Edit_Window(QWidget):
             
             if reply == QMessageBox.Yes:
                 self.save()
+
+        self.signal.closed.emit()
         
         event.accept()
 
 
-    def save(self):
-        
-        text = self.textWidget.toPlainText()
-        self.close()
 
     
 
