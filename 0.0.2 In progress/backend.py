@@ -1,25 +1,52 @@
 import sqlite3
 
-def add_note_sql():
-    """Takes the note from input and inserts it to the database."""
-    text = input()
-    sql = '''INSERT INTO main(note) VALUES (?)'''
-    cursor.execute(sql, (text,))
+def add_note_sql(title, text=None, start_date=None, due_date=None):
+    """Takes the note from input and inserts it to the database.
+
+    Key arguments:
+    title - the title of the note
+    text - the text of the note
+    start_date - the start date of the note
+    due_date - the due date of the note
+    """
+    sql = '''INSERT INTO main(title, note, start_date, due_date) VALUES (?,?,?,?)'''
+    cursor.execute(sql, (title, text, start_date, due_date))
     conn.commit()
 
 
-def delete_note_sql(note_id):
+def delete_note_sql(ID):
     """Deletes the note.
 
     Key arguments:
-    note_id - the key argument of the note at the database.
+    ID - the key argument of the note at the database.
     """
 
-    sql = '''DELETE FROM main WHERE note=?'''
-    cursor.execute(sql, (note_id,))
+    sql = '''DELETE FROM main WHERE id=?'''
+    cursor.execute(sql, (ID,))
     conn.commit()
 
-<<<<<<< HEAD
+
+def edit_note_sql(ID, new_title=None, new_text=None, new_start_date=None, new_due_date=None):
+    """Updates the note.
+
+    Key arguments:
+    ID - the identificator of the note
+    new_title - changed title
+    new_text - changed text
+    new_start_date - changed start date
+    new_due_date - changed due date
+
+    Any argument except ID may stay the same.
+    """
+    sql = '''UPDATE main
+             SET title = ?,
+                 note = ?,
+                 start_date = ?,
+                 due_date = ?
+             WHERE id = ?'''
+    cursor.execute(sql, (new_title, new_text, new_start_date, new_due_date, ID))
+    conn.commit()
+    
 
 def show_notes_sql():
     """Shows all notes from the database."""
@@ -80,23 +107,19 @@ def auto_transfer(string, length=20, rows=5):
 
 conn = sqlite3.connect('notes.db')
 cursor = conn.cursor()
-sql = '''CREATE TABLE IF NOT EXISTS main
-(note text)'''
-cursor.execute(sql)
-=======
-def edit_note(notes, prev_text, new_text):
-    
-    new_note = dict(text = new_text)
-    prev_note = dict(text = prev_text)
-    notes.remove(prev_note)
-    notes.append(new_note)
->>>>>>> 4847452f1121230dc478af9537287f29279fb14c
 
-"""Test of adding k notes and showing all notes"""
-k = 3
-for i in range(k):
-    add_note_sql()
-delete_note_sql("note 1")
+sql = '''CREATE TABLE IF NOT EXISTS main
+(id integer PRIMARY KEY AUTOINCREMENT, title text NOT NULL, note text, start_date text, due_date text)'''
+cursor.execute(sql)
+
+
+"""Test of adding notes and showing all notes"""
+add_note_sql("how are you", "task 1", "20.07.2011")
+add_note_sql("hello world")
+show_notes_sql()
+delete_note_sql(2)
+show_notes_sql()
+edit_note_sql(1, "changed title", "changed task")
 show_notes_sql()
 cursor.close()
 conn.close()
