@@ -1,62 +1,111 @@
 import sqlite3
+import re
 
-def add_note_sql(title, text=None, start_date=None, due_date=None):
-    """Takes the note from input and inserts it to the database.
+class SQL():
+    
+    def __init__(self, filename):
+        
+        self.conn = sqlite3.connect(filename)
+        self.cursor = self.conn.cursor()
+        sql = '''CREATE TABLE IF NOT EXISTS main
+        (id integer PRIMARY KEY AUTOINCREMENT,
+        title text NOT NULL,
+        note text,
+        start_date text,
+        due_date text,
+        tag text)'''
 
-    Key arguments:
-    title - the title of the note
-    text - the text of the note
-    start_date - the start date of the note
-    due_date - the due date of the note
-    """
-    sql = '''INSERT INTO main(title, note, start_date, due_date) VALUES (?,?,?,?)'''
-    cursor.execute(sql, (title, text, start_date, due_date))
-    conn.commit()
-
-
-def delete_note_sql(ID):
-    """Deletes the note.
-
-    Key arguments:
-    ID - the key argument of the note at the database.
-    """
-
-    sql = '''DELETE FROM main WHERE id=?'''
-    cursor.execute(sql, (ID,))
-    conn.commit()
+        self.cursor.execute(sql)
+        self.conn.commit()
 
 
-def edit_note_sql(ID, new_title=None, new_text=None, new_start_date=None, new_due_date=None):
-    """Updates the note.
+    def get_note(self, ID):
+        """Get the note.
 
-    Key arguments:
-    ID - the identificator of the note
-    new_title - changed title
-    new_text - changed text
-    new_start_date - changed start date
-    new_due_date - changed due date
+        Key arguments:
+        ID - the identificator of the note
+        """
+        sql = '''SELECT * FROM main WHERE id = ?'''
+        
+        return self.cursor.execute(sql, (ID,)).fetchall()[0]
+        
 
-    Any argument except ID may stay the same.
-    """
-    sql = '''UPDATE main
-             SET title = ?,
-                 note = ?,
-                 start_date = ?,
-                 due_date = ?
-             WHERE id = ?'''
-    cursor.execute(sql, (new_title, new_text, new_start_date, new_due_date, ID))
-    conn.commit()
+    def add_note(self,
+                 title = 'Untitled',
+                 text = '',
+                 start_date = None,
+                 due_date = None,
+                 tag = None):
+        """Takes the note from input and inserts it to the database.
+
+        Key arguments:
+        title - the title of the note
+        text - the text of the note
+        start_date - the start date of the note
+        due_date - the due date of the note
+        tag - tag of the note
+        """
+        sql = '''INSERT INTO main(title, note, start_date, due_date, tag) VALUES (?,?,?,?,?)'''
+        self.cursor.execute(sql, (title, text, start_date, due_date, tag))
+        self.conn.commit()
+
+
+    def edit_note(self,
+                  ID,
+                  new_title = 'Untitled',
+                  new_text = '',
+                  new_start_date = None,
+                  new_due_date = None,
+                  new_tag = None):
+        
+        """Updates the note.
+
+        Key arguments:
+        ID - the identificator of the note
+        new_title - changed title
+        new_text - changed text
+        new_start_date - changed start date
+        new_due_date - changed due date
+        new_tag - changed tag
+
+        Any argument except ID may stay the same.
+        """
+        sql = '''UPDATE main
+                 SET title = ?,
+                     note = ?,
+                     start_date = ?,
+                     due_date = ?,
+                     tag = ?
+                 WHERE id = ?'''
+        self.cursor.execute(sql, (new_title, new_text, new_start_date, new_due_date, new_tag, ID))
+        self.conn.commit()
+
+
+
+    def delete_note(self, ID):
+        """Deletes the note.
+
+        Key arguments:
+        ID - the key argument of the note at the database.
+        """
+
+        sql = '''DELETE FROM main WHERE id=?'''
+        self.cursor.execute(sql, (ID,))
+        self.conn.commit()
+
+        
+
+    def show_notes(self):
+        """Shows all notes from the database."""
+        sql = '''SELECT id, title FROM main'''
+        return self.cursor.execute(sql).fetchall()
     
 
-def show_notes_sql():
-    """Shows all notes from the database."""
-    sql = '''SELECT * FROM main'''
-    print(cursor.execute(sql).fetchall())
 
 
 def auto_transfer(string, length=20, rows=5):
     """Auto-transfers the string by spaces, underscores and by max length.
-    
+        
     Key arguments:
     string - the string for transferring
     length - maximal length of each row of the result (default 20)
@@ -105,22 +154,16 @@ def auto_transfer(string, length=20, rows=5):
 
 
 
-conn = sqlite3.connect('notes.db')
-cursor = conn.cursor()
+class Note():
+    
+    def __init__(self, ID, title, text, start, due, tag):
 
-sql = '''CREATE TABLE IF NOT EXISTS main
-(id integer PRIMARY KEY AUTOINCREMENT, title text NOT NULL, note text, start_date text, due_date text)'''
-cursor.execute(sql)
+        self.id = ID
+        self.title = title
+        self.text = text
+        self.start = start
+        self.due = due
+        self.tag = tag
 
 
-"""Test of adding notes and showing all notes"""
-add_note_sql("how are you", "task 1", "20.07.2011")
-add_note_sql("hello world")
-show_notes_sql()
-delete_note_sql(2)
-show_notes_sql()
-edit_note_sql(1, "changed title", "changed task")
-show_notes_sql()
-cursor.close()
-conn.close()
 

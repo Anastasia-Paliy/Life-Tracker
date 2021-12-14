@@ -1,6 +1,7 @@
 import sys
 import json
 from edit import Edit_Window
+from backend import SQL
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, QEventLoop
 from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton, QMessageBox,
@@ -15,17 +16,17 @@ class Main_Window(QMainWindow):
 
         super().__init__()
 
-        self.upload_notes("notes.json")
+        self.setFixedSize(400, 600)
+        self.center()
+        self.setWindowTitle('Life Tracker')
+        self.setWindowIcon(QIcon('icon.png'))
+
+        self.sql = SQL("notes.db")
         
         self.initUI()
 
 
     def initUI(self):      
-        
-        self.setFixedSize(400, 600)
-        self.center()
-        self.setWindowTitle('Life Tracker')
-        self.setWindowIcon(QIcon('icon.png'))
         
         self.notesBox = QVBoxLayout()
         self.notesWidget = QWidget()
@@ -62,24 +63,17 @@ class Main_Window(QMainWindow):
         self.move(qr.topLeft())
 
 
-    def upload_notes(self, file_name):
-        try:
-            with open(file_name, 'r') as file:
-                self.notes = json.load(file)
-                
-        except FileNotFoundError:
-            self.notes = []
-
-
     def display_notes(self):
+        
+        for note in reversed(self.sql.show_notes()):
+            noteButton = QPushButton(f'{note[1]}', self)
+            noteButton.setObjectName(str(note[0]))
+            noteButton.clicked.connect(self.open_note)
+            self.notesBox.addWidget(noteButton)
 
-        for note in reversed(self.notes):
-            my_notes = note.values()
-            for item in my_notes:
-                noteB = QPushButton(f'{item}', self)
-                noteB.setObjectName(item)
-                noteB.clicked.connect(self.open_note)
-                self.notesBox.addWidget(noteB)
+    def update_window(self):
+        
+        self.initUI()
                 
 
     def edit_window_processing(self):
@@ -88,13 +82,12 @@ class Main_Window(QMainWindow):
         loop = QEventLoop()
         self.edit_window.signal.closed.connect(loop.quit)
         loop.exec()
-        #self.notes = self.edit_window.notes
-        self.initUI()
+        self.update_window()
 
 
     def new_note(self):
         
-        self.edit_window = Edit_Window('new', self.notes)
+        self.edit_window = Edit_Window('new', self.sql)
         self.edit_window_processing()
         
 
@@ -102,9 +95,8 @@ class Main_Window(QMainWindow):
     def open_note(self):
     
         sending_button = self.sender()
-        text = sending_button.objectName()
-        self.edit_window = Edit_Window('edit', self.notes, text)
-        self.edit_window.textWidget.setPlainText(text)
+        ID = int(sending_button.objectName())
+        self.edit_window = Edit_Window('edit', self.sql, ID)
         self.edit_window_processing()
 
 
@@ -115,3 +107,6 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     ex = Main_Window()
     sys.exit(app.exec_())
+    ex.sql.cursor.close()
+    ex.sql.conn.close()
+    print('final')
