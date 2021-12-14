@@ -2,7 +2,8 @@ import sys
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, pyqtSignal, QObject
 from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton, QMessageBox,
-                             QDesktopWidget, QHBoxLayout, QVBoxLayout, QTextEdit)
+                             QDesktopWidget, QHBoxLayout, QVBoxLayout, QTextEdit,
+                             QLineEdit, QLabel)
 from backend import add_note, edit_note
 
 
@@ -32,17 +33,49 @@ class Edit_Window(QWidget):
         self.setWindowIcon(QIcon('icon.png'))
         
         self.textWidget = QTextEdit()
+        self.titleWidget = QLineEdit()
         
-        vbox = QVBoxLayout(self)
-        vbox.addWidget(self.textWidget)
+        hbox = QHBoxLayout(self)
+        leftWidget = QWidget()
+        hbox.addWidget(leftWidget)
+        rightWidget = QWidget()
+        hbox.addWidget(rightWidget)
         
-        button = QPushButton('Save note', self)
-        button.resize(button.sizeHint())
-        button.move(150, 250)
-        button.setObjectName('save')
-        button.clicked.connect(self.close)
+        vbox1 = QVBoxLayout(leftWidget)
+        vbox1.addWidget(self.titleWidget)
+        vbox1.addWidget(self.textWidget)
+        
+        saveButton = QPushButton('Save', self)
+        saveButton.resize(saveButton.sizeHint())
+        #saveButton.move(150, 250)
+        saveButton.setObjectName('save')
+        saveButton.clicked.connect(self.close)
 
-        vbox.addWidget(button)
+        deleteButton = QPushButton('Delete', self)
+        deleteButton.resize(deleteButton.sizeHint())
+        #deleteButton.move(150, 250)
+        deleteButton.setObjectName('delete')
+        deleteButton.clicked.connect(self.close)
+
+        startLabel = QLabel("start date")
+        startDate = QLineEdit()
+        dueLabel = QLabel("due date")
+        dueDate = QLineEdit()
+        tagLabel = QLabel("tag")
+        tagInput = QLineEdit()
+        
+        vbox2 = QVBoxLayout(rightWidget)
+        vbox2.addWidget(deleteButton)
+        vbox2.addWidget(startLabel)
+        vbox2.addWidget(startDate)
+        vbox2.addWidget(dueLabel)
+        vbox2.addWidget(dueDate)
+        vbox2.addWidget(tagLabel)
+        vbox2.addWidget(tagInput)
+        vbox2.addWidget(saveButton)
+        
+        
+
 
         self.signal = Signal()
         
@@ -101,6 +134,6 @@ class Edit_Window(QWidget):
 if __name__ == '__main__':
 
     app = QApplication(sys.argv)
-    ex = Edit_Window()
+    ex = Edit_Window('new', [])
     ex.show()
     sys.exit(app.exec_())

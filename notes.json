@@ -3,19 +3,19 @@
         "text": "my first note"
     },
     {
-        "text": "mynoooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooote"
+        "text": "my second note"
     },
     {
-        "text": "a rather long note consisting of too many words"
+        "text": "my third note"
     },
     {
-        "text": "NotAShortNoteAndWhatWillYouSayAboutIt"
+        "text": "one more note"
     },
     {
-        "text": "Another_One_Very_Long_And_Silly_Note"
+        "text": "and one more note"
     },
     {
-        "text": "how.many.else.notes.are.you.going.to.write"
+        "text": "the last note"
     },
     {
         "text": "1.note"
@@ -36,21 +36,51 @@
         "text": "note 10000"
     },
     {
-        "text": "aaaa"
+        "text": "123"
     },
     {
-        "text": "bbb"
+        "text": "234"
     },
     {
-        "text": "cccccc"
+        "text": "456"
     },
     {
-        "text": "111"
+        "text": "Note 16"
     },
     {
-        "text": "222"
+        "text": "Note 17"
     },
     {
-        "text": "333"
+        "text": "Note 18"
+    },
+    {
+        "text": "Note 20"
+    },
+    {
+        "text": "Note 21"
+    },
+    {
+        "text": "Note 23"
+    },
+    {
+        "text": "Note 24"
+    },
+    {
+        "text": "test add_note"
+    },
+    {
+        "text": "test edit_note"
+    },
+    {
+        "text": "test new_note + save"
+    },
+    {
+        "text": "test new_note + close + save"
+    },
+    {
+        "text": "Note 22 ---> test edit_note + save"
+    },
+    {
+        "text": "Note 19 ---> test edit_note + close + save"
     }
 ]
