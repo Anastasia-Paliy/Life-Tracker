@@ -25,7 +25,6 @@ class Edit_Window(QWidget):
         
         if self.action == 'edit':
             note = self.sql.get_note(ID)
-            print(note)
             self.titleWidget.setText(note[1])
             self.textWidget.setPlainText(note[2])
             self.startDate.setText(note[3])

@@ -106,7 +106,9 @@ if __name__ == '__main__':
 
     app = QApplication(sys.argv)
     ex = Main_Window()
-    sys.exit(app.exec_())
+    res = app.exec_()
     ex.sql.cursor.close()
     ex.sql.conn.close()
-    print('final')
+    sys.exit(res)
+
+    
