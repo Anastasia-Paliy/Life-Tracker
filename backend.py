@@ -99,7 +99,22 @@ class SQL():
         """Shows all notes from the database."""
         sql = '''SELECT id, title FROM main'''
         return self.cursor.execute(sql).fetchall()
-    
+
+
+    def get_tags(self):
+        "Returns list of all tags."
+        sql = '''SELECT DISTINCT tag FROM main'''
+        cur = self.cursor.execute(sql).fetchall()
+        ans = []
+        for elem in cur:
+            ans.append(elem[0])
+        return ans
+
+        
+    def select_notes_by_tag(self, tag):
+        """Selects notes having a particular tag."""
+        sql = '''SELECT * FROM main WHERE tag = ?'''
+        return self.cursor.execute(sql, (tag,)).fetchall()
 
 
 
@@ -151,6 +166,7 @@ def auto_transfer(string, length=20, rows=5):
         cur_transfer += 1
 
     return cur_string
+
 
 
 
