@@ -33,9 +33,9 @@ class SQL():
     def add_note(self,
                  title = 'Untitled',
                  text = '',
-                 start_date = None,
-                 due_date = None,
-                 tag = None):
+                 start_date = '',
+                 due_date = '',
+                 tag = ''):
         """Takes the note from input and inserts it to the database.
 
         Key arguments:
@@ -54,9 +54,9 @@ class SQL():
                   ID,
                   new_title = 'Untitled',
                   new_text = '',
-                  new_start_date = None,
-                  new_due_date = None,
-                  new_tag = None):
+                  new_start_date = '',
+                  new_due_date = '',
+                  new_tag = ''):
         
         """Updates the note.
 
@@ -112,9 +112,12 @@ class SQL():
 
         
     def select_notes_by_tag(self, tag):
-        """Selects notes having a particular tag."""
-        sql = '''SELECT * FROM main WHERE tag = ?'''
-        return self.cursor.execute(sql, (tag,)).fetchall()
+        if tag == None:
+            return self.show_notes()
+        else:
+            """Selects notes having a particular tag."""
+            sql = '''SELECT * FROM main WHERE tag = ?'''
+            return self.cursor.execute(sql, (tag,)).fetchall()
 
 
 
