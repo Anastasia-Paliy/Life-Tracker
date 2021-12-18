@@ -33,9 +33,9 @@ class SQL():
     def add_note(self,
                  title = 'Untitled',
                  text = '',
-                 start_date = '',
-                 due_date = '',
-                 tag = ''):
+                 start_date = None,
+                 due_date = None,
+                 tag = None):
         """Takes the note from input and inserts it to the database.
 
         Key arguments:
@@ -54,9 +54,9 @@ class SQL():
                   ID,
                   new_title = 'Untitled',
                   new_text = '',
-                  new_start_date = '',
-                  new_due_date = '',
-                  new_tag = ''):
+                  new_start_date = None,
+                  new_due_date = None,
+                  new_tag = None):
         
         """Updates the note.
 
@@ -112,16 +112,13 @@ class SQL():
 
         
     def select_notes_by_tag(self, tag):
-        if tag == None:
-            return self.show_notes()
-        else:
-            """Selects notes having a particular tag."""
-            sql = '''SELECT * FROM main WHERE tag = ?'''
-            return self.cursor.execute(sql, (tag,)).fetchall()
+        """Selects notes having a particular tag."""
+        sql = '''SELECT * FROM main WHERE tag = ?'''
+        return self.cursor.execute(sql, (tag,)).fetchall()
 
 
 
-def auto_transfer(string, length=20, rows=5):
+def auto_transfer(string, length=35, rows=5):
     """Auto-transfers the string by spaces, underscores and by max length.
         
     Key arguments:

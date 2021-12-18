@@ -1,32 +1,28 @@
 import sys
+import json
+from backend import auto_transfer
 from edit import Edit_Window
 from backend import SQL
 from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt, QEventLoop, pyqtSignal, QObject
+from PyQt5.QtCore import Qt, QEventLoop
 from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton, QMessageBox,
                              QDesktopWidget, QHBoxLayout, QVBoxLayout, QScrollBar,
-                             QLabel, QScrollArea)
+                             QLabel, QScrollArea, QMainWindow)
 
 
-class Signal(QObject):
 
-    updated = pyqtSignal()
-    edit_window_opened = pyqtSignal()
-    
+class Main_Window(QMainWindow):
 
-
-class TaskList(QWidget):
-
-    def __init__(self, sql, tag):
+    def __init__(self):
 
         super().__init__()
 
         self.setFixedSize(400, 600)
+        self.center()
         self.setWindowTitle('Life Tracker')
         self.setWindowIcon(QIcon('icon.png'))
-        
-        self.sql = sql
-        self.tag = tag
+
+        self.sql = SQL("notes.db")
         
         self.initUI()
 
@@ -35,10 +31,8 @@ class TaskList(QWidget):
         
         self.notesBox = QVBoxLayout()
         self.notesWidget = QWidget()
-        
+
         self.display_notes()
-            
-        self.notesBox.addStretch()
             
         self.notesWidget.setLayout(self.notesBox)
         scroll = QScrollArea()
@@ -48,20 +42,18 @@ class TaskList(QWidget):
 
         button = QPushButton('New note', self)
         button.resize(button.sizeHint())
+        button.move(150, 250)
         button.clicked.connect(self.new_note)
         
         vbox = QVBoxLayout(self)
-
-        if self.tag != None:
-            tagButton = QPushButton(self.tag, self)
-            tagButton.resize(tagButton.sizeHint())
-            tagButton.setEnabled(False)
-            vbox.addWidget(tagButton)
-            
         vbox.addWidget(scroll)
         vbox.addWidget(button)
 
-        #self.signal = Signal()
+        self.widget = QWidget()
+        self.widget.setLayout(vbox)
+        self.setCentralWidget(self.widget)
+        
+        self.show()
         
 
     def center(self):
@@ -74,17 +66,15 @@ class TaskList(QWidget):
 
     def display_notes(self):
         
-        for note in reversed(self.sql.select_notes_by_tag(self.tag)):
-            noteButton = QPushButton(f'{note[1]}', self)
+        for note in reversed(self.sql.show_notes()):
+            noteButton = QPushButton(f'{auto_transfer(note[1])}', self)
             noteButton.setObjectName(str(note[0]))
             noteButton.clicked.connect(self.open_note)
             self.notesBox.addWidget(noteButton)
 
-
     def update_window(self):
         
         self.initUI()
-        self.show()
                 
 
     def edit_window_processing(self):
@@ -94,7 +84,6 @@ class TaskList(QWidget):
         self.edit_window.signal.closed.connect(loop.quit)
         loop.exec()
         self.update_window()
-        #self.signal.updated.emit()
 
 
     def new_note(self):
@@ -102,6 +91,7 @@ class TaskList(QWidget):
         self.edit_window = Edit_Window('new', self.sql)
         self.edit_window_processing()
         
+
 
     def open_note(self):
     
@@ -116,9 +106,7 @@ class TaskList(QWidget):
 if __name__ == '__main__':
 
     app = QApplication(sys.argv)
-    sql = SQL("notes.db")
-    ex = TaskList(sql, None)
-    ex.show()
+    ex = Main_Window()
     res = app.exec_()
     ex.sql.cursor.close()
     ex.sql.conn.close()
