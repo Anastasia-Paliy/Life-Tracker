@@ -31,17 +31,6 @@ class Edit_Window(QWidget):
             self.dueDate.setText(note[4])
             self.tagInput.setText(note[5])
 
-        
-        """
-        try:
-            print(self.sql.get_note(ID))
-        except:
-            print('ERROR')
-        """
-        """
-        if self.action == 'edit':
-            self.textWidget.setPlainText(self.sql.get_note(ID)[1])
-        """    
 
 
     def initUI(self):
@@ -66,17 +55,20 @@ class Edit_Window(QWidget):
         vbox1.addWidget(self.titleWidget)
         vbox1.addWidget(self.textWidget)
         
-        saveButton = QPushButton('Save', self)
+        saveButton = QPushButton('Save')
         saveButton.resize(saveButton.sizeHint())
-        #saveButton.move(150, 250)
         saveButton.setObjectName('save')
         saveButton.clicked.connect(self.close)
 
-        deleteButton = QPushButton('Delete', self)
+        deleteButton = QPushButton('Delete')
         deleteButton.resize(deleteButton.sizeHint())
-        #deleteButton.move(150, 250)
         deleteButton.setObjectName('delete')
         deleteButton.clicked.connect(self.close)
+
+        closeButton = QPushButton('Close')
+        closeButton.resize(closeButton.sizeHint())
+        closeButton.setObjectName('close')
+        closeButton.clicked.connect(self.close)
 
         formatLabel = QLabel("\nDate & time format:\n01.01.2021 00:00")
 
@@ -105,7 +97,6 @@ class Edit_Window(QWidget):
     
         self.signal = Signal()
         
-        return self
     
 
     def center(self):
