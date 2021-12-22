@@ -56,21 +56,28 @@ class Edit_Window(QWidget):
         vbox1.addWidget(self.textWidget)
         
         saveButton = QPushButton('Save')
-        saveButton.resize(saveButton.sizeHint())
+        saveButton.setStyleSheet('background-color: rgb(153,247,191);')
         saveButton.setObjectName('save')
-        saveButton.clicked.connect(self.close)
+        saveButton.clicked.connect(self.close)        
 
         deleteButton = QPushButton('Delete')
-        deleteButton.resize(deleteButton.sizeHint())
+        deleteButton.setStyleSheet('background-color: #F5AEAE')
         deleteButton.setObjectName('delete')
         deleteButton.clicked.connect(self.close)
 
         closeButton = QPushButton('Close')
-        closeButton.resize(closeButton.sizeHint())
+        closeButton.setStyleSheet('background-color: #FFE797')
         closeButton.setObjectName('close')
         closeButton.clicked.connect(self.close)
 
+        cdWidget = QWidget()
+        hcdBox = QHBoxLayout(cdWidget)
+        hcdBox.addWidget(closeButton)
+        hcdBox.addWidget(deleteButton)
+        hcdBox.setContentsMargins(0,0,0,0)
+
         formatLabel = QLabel("\nDate & time format:\n01.01.2021 00:00")
+        formatLabel.setStyleSheet('color: #3D3DCA')
 
         startLabel = QLabel("\nstart date:")
         self.startDate = QLineEdit()
@@ -81,7 +88,7 @@ class Edit_Window(QWidget):
         emptyLabel = QLabel("\n")
         
         vbox2 = QVBoxLayout(rightWidget)
-        vbox2.addWidget(deleteButton)
+        vbox2.addWidget(cdWidget)
         vbox2.addWidget(formatLabel)
         vbox2.addWidget(startLabel)
         vbox2.addWidget(self.startDate)

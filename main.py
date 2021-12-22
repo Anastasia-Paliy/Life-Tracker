@@ -1,9 +1,9 @@
 import sys
-from PyQt5.QtCore import Qt, QEventLoop
-from PyQt5.QtGui import QIcon
 from gui import TaskList
 from backend import SQL
 from edit import Edit_Window
+from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import Qt, QEventLoop
 from PyQt5.QtWidgets import (QApplication, QWidget, QMainWindow, QHBoxLayout, QVBoxLayout,
                              QDesktopWidget, QScrollArea, QPushButton)
 
@@ -16,17 +16,21 @@ class MainWindow(QMainWindow):
         self.sql = SQL("notes.db")
         self.tag = "Any"
         self.view = 'TaskBoard'
-
+        
         self.center()
         self.setWindowTitle('Life Tracker')
         self.setWindowIcon(QIcon('icon.png'))
 
-        self.newNoteB = QPushButton('New note')
+        self.newNoteB = QPushButton('New task')
+        self.newNoteB.setStyleSheet('background-color: rgb(153,247,191);')
         self.newNoteB.clicked.connect(self.new_note)
         self.allTasksB = QPushButton('All tasks')
+        self.allTasksB.setStyleSheet('background-color: #E5A6EF')
         self.allTasksB.clicked.connect(self.showAll)
         self.statisticsB = QPushButton('Statistics')
+        self.statisticsB.setStyleSheet('background-color: #FDFFA5')
         self.taskboardB = QPushButton('TaskBoard')
+        self.taskboardB.setStyleSheet('background-color: #ABA5FF')
         self.taskboardB.clicked.connect(self.showBoard)
 
         hbox1 = QHBoxLayout()
@@ -52,17 +56,19 @@ class MainWindow(QMainWindow):
         if self.view == 'TaskBoard':
             tags = self.sql.get_tags()
             self.button = self.taskboardB
-            self.setFixedSize(min(400*len(tags)+60,1260), 710)
+            self.setFixedSize(min(325*len(tags), 950), 565)
         elif self.view == 'All tasks':
             tags = [None]
             self.button = self.allTasksB
-            self.setFixedSize(450, 700)
+            self.setFixedSize(340, 550)
         else:
             print('Mistake')   
 
+        index = 0
         for tag in tags:
-            taskList = TaskList(self, self.sql, tag)
+            taskList = TaskList(self, self.sql, tag, index)
             hbox.addWidget(taskList)
+            index += 1
             
         taskboard = QWidget()
         taskboard.setLayout(hbox)
