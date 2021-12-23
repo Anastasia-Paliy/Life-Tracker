@@ -1,5 +1,40 @@
 import sqlite3
 import re
+import datetime
+
+def to_datetime(string):
+    return datetime.datetime.strptime(string, '%d.%m.%Y %H:%M')
+
+
+def to_string(date):
+    return datetime.datetime.strftime(date, '%d.%m.%Y %H:%M')
+
+
+def parse_timedelta(delta):
+    days = delta.days
+    if days >= 0:
+        s = delta.seconds
+    else:
+        s = 86400 - delta.seconds
+        days += 1
+    hours = s // 3600
+    minutes = (s - 3600 * hours) // 60
+    seconds = s % 60
+    return f'{days} days, {hours} hours, {minutes} minutes, {seconds} seconds'
+
+
+def to_timedelta(string):
+    l = list(map(int, re.findall(r'\d+', string)))
+    return datetime.timedelta(days=l[0], hours=l[1], minutes = l[2], seconds=l[3])
+
+
+def check_date_format(date):
+    try:
+        d = to_datetime(date)
+    except:
+        date = ""
+    return date
+    
 
 class SQL():
     
@@ -19,11 +54,58 @@ class SQL():
         self.conn.commit()
 
 
+        sql = '''CREATE TABLE IF NOT EXISTS statistics
+        (id integer PRIMARY KEY AUTOINCREMENT,
+        creation_date text,
+        first_deadline_date text,
+        last_editing_date text,
+        closing_date text,
+        changed_content_times integer,
+        changed_deadline_times integer,
+        closed_flag integer NOT NULL)'''
+
+        self.cursor.execute(sql)
+        self.conn.commit()
+
+
+        sql = '''CREATE TABLE IF NOT EXISTS total
+        (id integer,
+        total_days_before_start_date integer,
+        total_time_before_closed_deadline integer,
+        total_content_changes integer,
+        total_deadline_changes integer,
+        total_deadline_difference integer,
+        total_closed integer,
+        total_deleted integer,
+        total_opened integer)
+        '''
+
+        self.cursor.execute(sql)
+        self.conn.commit()
+
+        s = parse_timedelta(datetime.timedelta(seconds=0))
+        
+        sql = '''INSERT INTO total(id,
+        total_days_before_start_date,
+        total_time_before_closed_deadline,
+        total_content_changes,
+        total_deadline_changes,
+        total_deadline_difference,
+        total_closed,
+        total_deleted,
+        total_opened)
+        VALUES(1,?,?,0,0,?,0,0,0)'''
+
+        self.cursor.execute(sql, (s, s, s))
+        self.conn.commit()
+
+
+
     def get_note(self, ID):
         """Get the note.
 
         Key arguments:
-        ID - the identificator of the note
+        ID - the identificator of the note.
         """
         sql = '''SELECT * FROM main WHERE id = ?'''
         
@@ -45,8 +127,43 @@ class SQL():
         due_date - the due date of the note
         tag - tag of the note
         """
-        sql = '''INSERT INTO main(title, note, start_date, due_date, tag) VALUES (?,?,?,?,?)'''
+
+        
+        start_date = check_date_format(start_date)
+        due_date = check_date_format(due_date)
+        
+        sql = '''INSERT INTO main(title, note, start_date, due_date, tag)
+        VALUES (?,?,?,?,?)'''
         self.cursor.execute(sql, (title, text, start_date, due_date, tag))
+        self.conn.commit()
+
+
+        sql = '''INSERT INTO statistics(creation_date, first_deadline_date,
+        last_editing_date, closing_date, changed_content_times,
+        changed_deadline_times, closed_flag) VALUES (?,?,?,?,?,?,?)'''
+        self.cursor.execute(sql, (to_string(datetime.datetime.now()), due_date,
+                                  to_string(datetime.datetime.now()), "",
+                                  0, 0, 0))
+        self.conn.commit()
+
+
+        sql = '''SELECT * FROM total WHERE id = 1'''
+        values_total = self.cursor.execute(sql).fetchall()[0]
+
+        if start_date != "":
+            datetime_before_start_date = to_datetime(start_date) - datetime.datetime.now()
+            new_days_before_start_date = parse_timedelta(datetime_before_start_date + to_timedelta(values_total[1]))
+        else:
+            new_days_before_start_date = values_total[1]
+            
+        new_notes = values_total[8] + 1
+
+        sql = '''UPDATE total
+                 SET total_days_before_start_date = ?,
+                     total_opened = ?
+                 WHERE id = 1
+                 '''
+        self.cursor.execute(sql, (new_days_before_start_date, new_notes))
         self.conn.commit()
 
 
@@ -70,6 +187,10 @@ class SQL():
 
         Any argument except ID may stay the same.
         """
+
+        new_start_date = check_date_format(new_start_date)
+        new_due_date = check_date_format(new_due_date)
+        
         sql = '''UPDATE main
                  SET title = ?,
                      note = ?,
@@ -77,9 +198,47 @@ class SQL():
                      due_date = ?,
                      tag = ?
                  WHERE id = ?'''
-        self.cursor.execute(sql, (new_title, new_text, new_start_date, new_due_date, new_tag, ID))
+        self.cursor.execute(sql, (new_title, new_text, new_start_date,
+                                  new_due_date, new_tag, ID))
         self.conn.commit()
 
+
+        # Getting current data from statistics
+        sql = '''SELECT * FROM statistics WHERE id = ?'''
+        values_stat = self.cursor.execute(sql, (ID,)).fetchall()[0]
+
+        sql = '''UPDATE statistics
+                 SET last_editing_date = ?,
+                     changed_content_times = ?,
+                     changed_deadline_times = ?
+                 WHERE id = ?'''
+        
+        changed_deadline = values_stat[6]
+        if new_due_date != "":
+            changed_deadline += 1
+            
+        self.cursor.execute(sql, (to_string(datetime.datetime.now()),
+                                  values_stat[5] + 1, changed_deadline,
+                                  ID))
+        self.conn.commit()
+
+
+        # Getting current data from total
+        sql = '''SELECT * FROM total WHERE id = 1'''
+        values_total = self.cursor.execute(sql).fetchall()[0]
+
+        sql = '''UPDATE total
+                 SET total_content_changes = ?,
+                     total_deadline_changes = ?
+                 WHERE id = 1'''
+
+        changed_deadline = values_total[4]
+        if new_due_date != "":
+            changed_deadline += 1
+            
+        self.cursor.execute(sql, (values_total[3] + 1,
+                                  changed_deadline))
+            
 
 
     def delete_note(self, ID):
@@ -89,11 +248,80 @@ class SQL():
         ID - the key argument of the note at the database.
         """
 
-        sql = '''DELETE FROM main WHERE id=?'''
+        sql = '''DELETE FROM main WHERE id = ?'''
         self.cursor.execute(sql, (ID,))
         self.conn.commit()
 
+        sql = '''DELETE FROM statistics WHERE id = ?'''
+        self.cursor.execute(sql, (ID,))
+        self.conn.commit()
+
+        sql = '''SELECT * FROM total WHERE id = 1'''
+        values_total = self.cursor.execute(sql).fetchall()[0]
+
+        sql = '''UPDATE total
+                 SET total_deleted = ?,
+                     total_opened = ?
+                 WHERE id = 1'''
+        self.cursor.execute(sql, (values_total[7] + 1, values_total[8] - 1))
+
+
+    def close_note(self, ID):
+        """Closes the task/the note.
+
+        Key arguments:
+        ID - the key argument of the note at the database.
+        """
+
+        sql = '''SELECT * FROM main WHERE id = ?'''
+        values_main = self.cursor.execute(sql, (ID,)).fetchall()[0]
         
+        sql = '''DELETE FROM main WHERE id = ?'''
+        self.cursor.execute(sql, (ID,))
+        self.conn.commit()
+
+        sql = '''UPDATE statistics
+                 SET closing_date = ?,
+                     closed_flag = ?
+                 WHERE id = ?'''
+        self.cursor.execute(sql, (to_string(datetime.datetime.now()),
+                                  1, ID))
+        self.conn.commit()
+
+        sql = '''SELECT * FROM statistics WHERE id = ?'''
+        values_stat = self.cursor.execute(sql, (ID,)).fetchall()[0]
+
+        sql = '''SELECT * FROM total WHERE id = 1'''
+        values_total = self.cursor.execute(sql).fetchall()[0]
+
+        sql = '''UPDATE total
+                 SET total_time_before_closed_deadline = ?,
+                     total_deadline_difference = ?,
+                     total_closed = ?,
+                     total_opened = ?
+                 WHERE id = 1'''
+
+        if values_main[4] != "":
+            time_to_deadline = to_datetime(values_main[4]) - datetime.datetime.now()
+        else:
+            time_to_deadline = datetime.timedelta(seconds=0)
+            
+        total_time_to_deadline = parse_timedelta(to_timedelta(values_total[2]) + time_to_deadline)
+
+    
+        if values_main[4] != "" and values_stat[2] != "":
+            deadline_diff = to_datetime(values_main[4]) - to_datetime(values_stat[2])
+        else:
+            deadline_diff = datetime.timedelta(seconds=0)
+            
+        total_deadline_diff = parse_timedelta(deadline_diff + to_timedelta(values_total[5]))
+
+        self.cursor.execute(sql, (total_time_to_deadline,
+                                  total_deadline_diff,
+                                  values_total[6] + 1,
+                                  values_total[8] - 1))
+        self.conn.commit()
+    
 
     def show_notes(self):
         """Shows all notes from the database."""
@@ -112,16 +340,63 @@ class SQL():
 
         
     def select_notes_by_tag(self, tag):
-        if tag == None:
-            return self.show_notes()
-        else:
-            """Selects notes having a particular tag."""
-            sql = '''SELECT * FROM main WHERE tag = ?'''
-            return self.cursor.execute(sql, (tag,)).fetchall()
+        """Selects notes having a particular tag."""
+        sql = '''SELECT * FROM main WHERE tag = ?'''
+        return self.cursor.execute(sql, (tag,)).fetchall()
 
 
+    def print_all(self):
+        """Shows all data."""
+        sql = '''SELECT * FROM main'''
+        print(self.cursor.execute(sql).fetchall())
+        sql = '''SELECT * FROM statistics'''
+        print(self.cursor.execute(sql).fetchall())
+        sql = '''SELECT * FROM total'''
+        print(self.cursor.execute(sql).fetchall()[0])
+        print()
 
-def auto_transfer(string, length=20, rows=5):
+
+    def get_total(self):
+        """Returns summary statistics as a list.
+
+           Indices of the list:
+           0 - average time before start date
+           1 - average time from closing to deadline
+           2 - average content changes per note
+           3 - average deadline changes per note
+           4 - average difference between the first and the last deadline
+        """
+
+        sql = '''SELECT * FROM total WHERE id = 1'''
+        values_total = self.cursor.execute(sql).fetchall()[0]
+
+        res = []
+
+        res.append(parse_timedelta(to_timedelta(values_total[1]) / (values_total[6] + values_total[7] + values_total[8])))
+        res.append(parse_timedelta(to_timedelta(values_total[2]) / values_total[6]))
+        res.append(round(values_total[3] / values_total[6], 2))
+        res.append(round(values_total[4] / values_total[6], 2))
+        res.append(parse_timedelta(to_timedelta(values_total[5]) / values_total[6]))
+
+        return res
+        
+        
+
+
+"""
+database = SQL("notes.db")
+database.add_note("1", "Note 1", "", "05.12.2021 00:00", "study")
+database.add_note("2", "Note 2", "03.12.2021 00:00", "10.12.2021 00:00", "study")
+database.add_note("3", "Note 3", "07.12.2021 00:00", "08.12.2021 00:00", "relax")
+database.print_all()
+database.edit_note(2, "2", "Nooote 2", "05.12.2021 18:45", "", "study")
+database.delete_note(1)
+database.close_note(2)
+database.print_all()
+database.get_total()
+"""
+
+def auto_transfer(string, length=35, rows=5):
     """Auto-transfers the string by spaces, underscores and by max length.
         
     Key arguments:
