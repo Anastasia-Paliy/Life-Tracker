@@ -1,6 +1,6 @@
 import sys
 from edit import Edit_Window
-from backend import SQL
+from sql import SQL
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, QEventLoop, pyqtSignal, QObject
 from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton, QMessageBox,

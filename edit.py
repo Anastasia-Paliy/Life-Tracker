@@ -1,4 +1,5 @@
 import sys
+from sql import SQL
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, pyqtSignal, QObject
 from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton, QMessageBox,
@@ -12,7 +13,6 @@ class Signal(QObject):
     closed = pyqtSignal()
     
 
-
 class Edit_Window(QWidget):
 
     def __init__(self, action, sql, ID = None):
@@ -24,12 +24,12 @@ class Edit_Window(QWidget):
         self.initUI()
         
         if self.action == 'edit':
-            note = self.sql.get_note(ID)
-            self.titleWidget.setText(note[1])
-            self.textWidget.setPlainText(note[2])
-            self.startDate.setText(note[3])
-            self.dueDate.setText(note[4])
-            self.tagInput.setText(note[5])
+            self.prev = self.sql.get_note(ID)
+            self.titleWidget.setText(self.prev[1])
+            self.textWidget.setPlainText(self.prev[2])
+            self.startDate.setText(self.prev[3])
+            self.dueDate.setText(self.prev[4])
+            self.tagInput.setText(self.prev[5])
 
 
 
@@ -104,7 +104,6 @@ class Edit_Window(QWidget):
     
         self.signal = Signal()
         
-    
 
     def center(self):
 
@@ -123,13 +122,30 @@ class Edit_Window(QWidget):
         tag = self.tagInput.text()
 
         return (title, text, start, due, tag)
+
+
+    def checkChanges(title, text, start, due, tag):
+
+        nChanges = nDueChanges = 0
+
+        if (title, text, start, due, tag) == self.prev:
+            return False
+        else:
+            nChanges = 1
+
+        if due != self.prev[4]:
+            nDueChanges = 1
+
+        return (nChanges, nDueChanges)
         
 
     def save(self):
+        
         (title, text, start, due, tag) = self.get_values()
         
         if self.action == 'edit':
-            self.sql.edit_note(self.ID, title, text, start, due, tag)
+            (edited, due_edited) = self.checkChanges(title, text, start, due, tag)
+            self.sql.edit_note(self.ID, title, text, start, due, tag, edited, due_edited)
 
         elif self.action == 'new':
             self.sql.add_note(title, text, start, due, tag)
@@ -138,11 +154,21 @@ class Edit_Window(QWidget):
             print("Invalid value of edit_window.action")
 
 
+    def closeTask(self):
+
+        self.sql.close_note(self.ID)
+        
+
     def delete(self):
         
-        (title, text, start, due, tag) = self.get_values()
         self.sql.delete_note(self.ID)
-        
+
+        reply = QMessageBox.question(self, 'Message',
+                "Close task before deleting?", QMessageBox.Yes |
+                QMessageBox.No, QMessageBox.No)
+            
+        if reply == QMessageBox.Yes:
+            self.closeTask()
 
     
     def closeEvent(self, event):
@@ -157,6 +183,8 @@ class Edit_Window(QWidget):
                 self.delete()
             elif text == 'delete' and self.action == 'new':
                 pass
+            elif text == 'close':
+                self.closeTask()
             else:
                 raise Exception
             
@@ -180,6 +208,6 @@ class Edit_Window(QWidget):
 if __name__ == '__main__':
 
     app = QApplication(sys.argv)
-    ex = Edit_Window('new', [])
+    ex = Edit_Window('new', SQL("notes.db"))
     ex.show()
     sys.exit(app.exec_())

@@ -1,7 +1,8 @@
 import sys
 from gui import TaskList
-from backend import SQL
+from sql import SQL
 from edit import Edit_Window
+from statistics import Statistics
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, QEventLoop
 from PyQt5.QtWidgets import (QApplication, QWidget, QMainWindow, QHBoxLayout, QVBoxLayout,
@@ -15,7 +16,7 @@ class MainWindow(QMainWindow):
         
         self.sql = SQL("notes.db")
         self.tag = "Any"
-        self.view = 'TaskBoard'
+        self.view = 'All tasks'
         
         self.center()
         self.setWindowTitle('Life Tracker')
@@ -29,6 +30,7 @@ class MainWindow(QMainWindow):
         self.allTasksB.clicked.connect(self.showAll)
         self.statisticsB = QPushButton('Statistics')
         self.statisticsB.setStyleSheet('background-color: #FDFFA5')
+        self.statisticsB.clicked.connect(self.showStat)
         self.taskboardB = QPushButton('TaskBoard')
         self.taskboardB.setStyleSheet('background-color: #ABA5FF')
         self.taskboardB.clicked.connect(self.showBoard)
@@ -57,10 +59,12 @@ class MainWindow(QMainWindow):
             tags = self.sql.get_tags()
             self.button = self.taskboardB
             self.setFixedSize(min(325*len(tags), 950), 565)
+            
         elif self.view == 'All tasks':
             tags = [None]
             self.button = self.allTasksB
             self.setFixedSize(340, 550)
+            
         else:
             print('Mistake')   
 
@@ -90,6 +94,26 @@ class MainWindow(QMainWindow):
         self.show()
 
 
+    def initStatistics(self):
+        
+        stat = Statistics(self.sql)
+
+        self.setFixedSize(600, 350)
+        
+        vbox = QVBoxLayout(self)
+        vbox.addWidget(stat)
+        vbox.addStretch()
+        vbox.addWidget(self.buttonsW)
+
+        self.button.setEnabled(True)
+        self.button = self.statisticsB
+        self.button.setEnabled(False)
+
+        self.widget = QWidget()
+        self.widget.setLayout(vbox)
+        self.setCentralWidget(self.widget)
+        
+
     def center(self):
         
         qr = self.frameGeometry()
@@ -99,19 +123,30 @@ class MainWindow(QMainWindow):
 
 
     def update_window(self):
-        
-        self.initUI()
+
+        if self.view == 'Statistics':
+            self.initStatistics()
+        else:
+            self.initUI()
 
 
     def showAll(self):
+        
         self.view = 'All tasks'
         self.update_window()
         
 
     def showBoard(self):
+        
         self.view = 'TaskBoard'
         self.update_window()
+        
 
+    def showStat(self):
+        
+        self.view = 'Statistics'
+        self.update_window()
+        
 
     def edit_window_processing(self):
         
