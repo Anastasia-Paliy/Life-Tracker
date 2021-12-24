@@ -124,7 +124,7 @@ class Edit_Window(QWidget):
         return (title, text, start, due, tag)
 
 
-    def checkChanges(title, text, start, due, tag):
+    def checkChanges(self, title, text, start, due, tag):
 
         nChanges = nDueChanges = 0
 
@@ -156,6 +156,9 @@ class Edit_Window(QWidget):
 
     def closeTask(self):
 
+        if self.action == 'new':
+            self.save()
+        
         self.sql.close_note(self.ID)
         
 

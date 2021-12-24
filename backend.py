@@ -12,24 +12,30 @@ def to_string(date):
 
 def parse_timedelta(delta):
     days = delta.days
+    
     if days >= 0:
         s = delta.seconds
+        positive = True
     else:
         s = 86400 - delta.seconds
         days += 1
+        positive = False
+        
     hours = s // 3600
     minutes = (s - 3600 * hours) // 60
-    seconds = s % 60
-    return f'{days} days, {hours} hours, {minutes} minutes, {seconds} seconds'
+    seconds = s - 3600 * hours - 60 * minutes
+    return (f'{days} days, {hours} hours, {minutes} minutes, {seconds} seconds' if positive
+            else f'{-days} days, {-hours} hours, {-minutes} minutes, {-seconds} seconds')
 
 
 def to_timedelta(string):
     l = list(map(int, re.findall(r'\d+', string)))
-    
-    if string[0] != '-':
-        return datetime.timedelta(days = l[0], hours = l[1], minutes = l[2], seconds = l[3])
-    else:
+
+    if '-' in string:
         return datetime.timedelta(days = -l[0], hours = -l[1], minutes = -l[2], seconds = -l[3])
+    else:
+        return datetime.timedelta(days = l[0], hours = l[1], minutes = l[2], seconds = l[3])
+        
 
 
 def check_date_format(date):
@@ -88,7 +94,6 @@ def auto_transfer(string, length=35, rows=5):
         cur_transfer += 1
 
     return cur_string
-
 
 
     

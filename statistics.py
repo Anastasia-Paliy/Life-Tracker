@@ -57,8 +57,8 @@ class Statistics(QWidget):
         vbox.addWidget(QLabel(''))
 
         if stat[6] != '-':
-            if stat[6][0] == '-':
-                stat[6] = stat[6][1:]
+            if '-' in stat[6]:
+                stat[6] = stat[6].replace('-', '')
                 BA = 'after'
             else:
                 BA = 'before'
@@ -69,8 +69,8 @@ class Statistics(QWidget):
             vbox.addWidget(l7)
 
         if stat[7] != '-':
-            if stat[7][0] == '-':
-                stat[7] = stat[7][1:]
+            if '-' in stat[7]:
+                stat[7] = stat[7].replace('-', '')
                 BA = 'after'
             else:
                 BA = 'before'
@@ -80,8 +80,8 @@ class Statistics(QWidget):
             vbox.addWidget(l8)
 
         if stat[8] != '-':
-            if stat[8][0] == '-':
-                stat[8] = stat[8][1:]
+            if '-' in stat[8]:
+                stat[8] = stat[8].replace('-', '')
 
                 l9 = QLabel(f'<font color="black">* Postponing deadline for </font>'
                             f'<font color="#3D3DCA">{stat[8]}</font>')

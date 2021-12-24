@@ -91,6 +91,8 @@ class MainWindow(QMainWindow):
         self.widget.setLayout(vbox)
         self.setCentralWidget(self.widget)
 
+        self.center()
+
         self.show()
 
 
@@ -112,6 +114,10 @@ class MainWindow(QMainWindow):
         self.widget = QWidget()
         self.widget.setLayout(vbox)
         self.setCentralWidget(self.widget)
+
+        self.center()
+
+        self.show()
         
 
     def center(self):
