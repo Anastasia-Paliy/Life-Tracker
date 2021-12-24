@@ -162,8 +162,11 @@ class SQL():
         Any argument except ID may stay the same.
         """
 
-        new_start_date = check_date_format(new_start_date)
-        new_due_date = check_date_format(new_due_date)
+        try:
+            new_start_date = check_date_format(new_start_date)
+            new_due_date = check_date_format(new_due_date)
+        except:
+            print(0)
         
         sql = '''UPDATE main
                  SET title = ?,
@@ -219,6 +222,7 @@ class SQL():
             
         self.cursor.execute(sql, (values_total[3] + edited,
                                   changed_deadline))
+        self.conn.commit()
             
 
 
@@ -311,6 +315,12 @@ class SQL():
         return self.cursor.execute(sql).fetchall()
 
 
+    def get_last_id(self):
+        """Returns last generated ID."""
+        #print(cursor.lastrowid)
+        return cursor.lastrowid
+
+
     def get_tags(self):
         "Returns list of all tags."
         sql = '''SELECT DISTINCT tag FROM main'''
@@ -342,7 +352,7 @@ class SQL():
 
 
     def get_total(self):
-        """Returns summary statistics as a list"""
+        """Returns summary statistics as a list."""
 
         sql = '''SELECT * FROM total WHERE id = 1'''
         values_total = self.cursor.execute(sql).fetchall()[0]

@@ -158,8 +158,9 @@ class Edit_Window(QWidget):
 
         if self.action == 'new':
             self.save()
-        
-        self.sql.close_note(self.ID)
+            self.sql.close_note(self.sql.get_last_id())
+        else:
+            self.sql.close_note(self.ID)
         
 
     def delete(self):
