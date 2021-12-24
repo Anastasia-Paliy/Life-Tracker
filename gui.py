@@ -1,6 +1,7 @@
 import sys
 from edit import Edit_Window
 from sql import SQL
+from backend import auto_transfer
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, QEventLoop, pyqtSignal, QObject
 from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton, QMessageBox,
@@ -63,7 +64,7 @@ class TaskList(QWidget):
         n = len(self.colors)
         
         for note in reversed(self.sql.select_notes_by_tag(self.tag)):
-            noteButton = QPushButton(f'{note[1]}', self)
+            noteButton = QPushButton(f'{auto_transfer(note[1])}', self)
             noteButton.setObjectName(str(note[0]))
             noteButton.clicked.connect(self.parent.open_note)
             noteButton.setStyleSheet('background-color: '+self.colors[self.index % n])
