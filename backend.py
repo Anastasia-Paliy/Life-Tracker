@@ -25,7 +25,7 @@ def parse_timedelta(delta):
     minutes = (s - 3600 * hours) // 60
     seconds = s - 3600 * hours - 60 * minutes
     return (f'{days} days, {hours} hours, {minutes} minutes, {seconds} seconds' if positive
-            else f'{-days} days, {-hours} hours, {-minutes} minutes, {-seconds} seconds')
+            else f'{days} days, {-hours} hours, {-minutes} minutes, {-seconds} seconds')
 
 
 def to_timedelta(string):
@@ -36,7 +36,6 @@ def to_timedelta(string):
     else:
         return datetime.timedelta(days = l[0], hours = l[1], minutes = l[2], seconds = l[3])
         
-
 
 def check_date_format(date):
     try:
@@ -51,7 +50,7 @@ def auto_transfer(string, length=35, rows=5):
         
     Key arguments:
     string - the string for transferring
-    length - maximal length of each row of the result (default 20)
+    length - maximal length of each row of the result (default 35)
     rows - maximal number of rows (default 5)
     """
 
@@ -94,6 +93,3 @@ def auto_transfer(string, length=35, rows=5):
         cur_transfer += 1
 
     return cur_string
-
-
-    
